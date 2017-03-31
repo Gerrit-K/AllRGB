@@ -1,5 +1,6 @@
 package allrgb;
 
+import allrgb.core.Coordinate;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
@@ -25,34 +26,6 @@ public class Main {
     private static int HEIGHT = 128;
     private static int STARTX = 128;
     private static int STARTY = 64;
-
-    private static class Coordinate {
-        public int x;
-        public int y;
-
-        public Coordinate(int x, int y) {
-            this.x = x;
-            this.y = y;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (!(o instanceof Coordinate)) return false;
-
-            Coordinate that = (Coordinate) o;
-
-            if (x != that.x) return false;
-            return y == that.y;
-        }
-
-        @Override
-        public int hashCode() {
-            int result = x;
-            result = 31 * result + y;
-            return result;
-        }
-    }
 
     // gets the difference between two colors
     static double colorDistance(Color c1, Color c2) {
