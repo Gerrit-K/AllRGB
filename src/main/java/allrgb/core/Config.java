@@ -1,11 +1,53 @@
 package allrgb.core;
 
-public class Config {
-    public static boolean AVERAGE = false;
-    public static int NUMCOLORS = 32;
-    public static int NUMIMAGES = 8;
-    public static int WIDTH = 256;
-    public static int HEIGHT = 128;
-    public static int STARTX = 128;
-    public static int STARTY = 64;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
+public final class Config {
+    public static boolean AVERAGE;
+
+    public static final class Color {
+        public static int DEPTH;
+    }
+
+    public static final class Image {
+        public static int AMOUNT;
+        public static int WIDTH;
+        public static int HEIGHT;
+    }
+
+    public static final class Origin {
+        public static int X;
+        public static int Y;
+    }
+
+    public static void load(String file) {
+        Properties properties = new Properties();
+
+        // property precedence:
+        // 1 (lowest): default properties
+        try (InputStream inputStream = Config.class.getClassLoader().getResourceAsStream("default.properties")) {
+            properties.load(inputStream);
+        } catch (IOException ignored) {
+        }
+
+        // 2: custom file properties
+        try (InputStream inputStream = new FileInputStream(file)) {
+            properties.load(inputStream);
+        } catch (IOException ignored) {
+        }
+
+        // 3: system properties (provided as JVM arguments with -D)
+        properties.putAll(System.getProperties());
+
+        AVERAGE = Boolean.parseBoolean(properties.getProperty("allrgb.average"));
+        Color.DEPTH = Integer.parseInt(properties.getProperty("allrgb.color.depth"));
+        Image.AMOUNT = Integer.parseInt(properties.getProperty("allrgb.image.amount"));
+        Image.WIDTH = Integer.parseInt(properties.getProperty("allrgb.image.width"));
+        Image.HEIGHT = Integer.parseInt(properties.getProperty("allrgb.image.height"));
+        Origin.X = Integer.parseInt(properties.getProperty("allrgb.start.x"));
+        Origin.Y = Integer.parseInt(properties.getProperty("allrgb.start.y"));
+    }
 }

@@ -11,6 +11,7 @@ import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -31,10 +32,10 @@ public class Main {
     static List<Coordinate> getNeighbours(Coordinate coordinate) {
         List<Coordinate> neighbours = new ArrayList<>();
         for (int y = coordinate.y - 1; y <= coordinate.y + 1; y++) {
-            if (y == -1 || y == Config.HEIGHT)
+            if (y == -1 || y == Config.Image.HEIGHT)
                 continue;
             for (int x = coordinate.x - 1; x <= coordinate.x + 1; x++) {
-                if (x == -1 || x == Config.WIDTH)
+                if (x == -1 || x == Config.Image.WIDTH)
                     continue;
                 neighbours.add(new Coordinate(x, y));
             }
@@ -61,14 +62,16 @@ public class Main {
     }
 
     public static void main(String[] args) throws IOException {
+        Config.load(Arrays.stream(args).findFirst().orElse(""));
+
         // create every color once and randomize the order
         List<Color> colors = new ArrayList<>();
-        for (int r = 0; r < Config.NUMCOLORS; r++) {
-            double red = (double) r / Config.NUMCOLORS;
-            for (int g = 0; g < Config.NUMCOLORS; g++) {
-                double green = (double) g / Config.NUMCOLORS;
-                for (int b = 0; b < Config.NUMCOLORS; b++) {
-                    double blue = (double) b / Config.NUMCOLORS;
+        for (int r = 0; r < Config.Color.DEPTH; r++) {
+            double red = (double) r / Config.Color.DEPTH;
+            for (int g = 0; g < Config.Color.DEPTH; g++) {
+                double green = (double) g / Config.Color.DEPTH;
+                for (int b = 0; b < Config.Color.DEPTH; b++) {
+                    double blue = (double) b / Config.Color.DEPTH;
                     colors.add(Color.color(red, green, blue));
                 }
             }
@@ -76,24 +79,24 @@ public class Main {
         Collections.shuffle(colors);
 
         // temporary place where we work (faster than all that many GetPixel calls)
-        Color[][] pixels = new Color[Config.HEIGHT][Config.WIDTH];
-        assert colors.size() == Config.HEIGHT * Config.WIDTH;
+        Color[][] pixels = new Color[Config.Image.HEIGHT][Config.Image.WIDTH];
+        assert colors.size() == Config.Image.HEIGHT * Config.Image.WIDTH;
 
         // constantly changing list of available coordinates (empty pixels which have non-empty neighbors)
         Set<Coordinate> availableCoordinates = new HashSet<>();
 
         // calculate the checkpoints in advance
         Map<Integer, Integer> checkpoints =
-                IntStream.range(0, Config.NUMIMAGES)
+                IntStream.range(0, Config.Image.AMOUNT)
                         .boxed()
-                        .collect(Collectors.toMap(i -> (i + 1) * colors.size() / Config.NUMIMAGES - 1, i -> i));
+                        .collect(Collectors.toMap(i -> (i + 1) * colors.size() / Config.Image.AMOUNT - 1, i -> i));
 
         // loop through all colors that we want to place
         for (int i = 0; i < colors.size(); i++) {
             Coordinate bestFit;
             if (availableCoordinates.size() == 0) {
                 // use the starting point
-                bestFit = new Coordinate(Config.STARTX, Config.STARTY);
+                bestFit = new Coordinate(Config.Origin.X, Config.Origin.Y);
             } else {
                 // find the best place from the list of available coordinates
                 // uses parallel processing, this is the most expensive step
@@ -121,10 +124,10 @@ public class Main {
             if (checkpoints.containsKey(i)) {
                 System.out.printf("Progress: %2d%%%n", (i + 1) * 100 / colors.size());
                 int checkpoint = checkpoints.get(i);
-                WritableImage img = new WritableImage(Config.WIDTH, Config.HEIGHT);
+                WritableImage img = new WritableImage(Config.Image.WIDTH, Config.Image.HEIGHT);
                 PixelWriter pixelWriter = img.getPixelWriter();
-                for (int y = 0; y < Config.HEIGHT; y++) {
-                    for (int x = 0; x < Config.WIDTH; x++) {
+                for (int y = 0; y < Config.Image.HEIGHT; y++) {
+                    for (int x = 0; x < Config.Image.WIDTH; x++) {
                         if (pixels[y][x] != null) {
                             pixelWriter.setColor(x, y, pixels[y][x]);
                         }

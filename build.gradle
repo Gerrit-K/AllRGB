@@ -9,3 +9,7 @@ mainClassName = 'allrgb.Main'
 run {
     enableAssertions = true
 }
+
+tasks.withType(JavaExec) {
+    systemProperties System.properties as Map<String, ?>
+}
