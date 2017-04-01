@@ -6,8 +6,8 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 
 import javax.imageio.ImageIO;
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -136,8 +136,11 @@ public class Algorithm {
                 try {
                     ImageIO.write(
                             SwingFXUtils.fromFXImage(img, null),
-                            "png",
-                            new File("build/result_" + checkpoint + ".png"));
+                            Config.Image.FORMAT,
+                            Paths.get(
+                                    Config.Image.PATH,
+                                    Config.Image.PREFIX + "_" + checkpoint + "." + Config.Image.FORMAT
+                            ).toFile());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

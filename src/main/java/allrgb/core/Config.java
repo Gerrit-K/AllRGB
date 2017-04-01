@@ -16,6 +16,9 @@ public final class Config {
         public static int AMOUNT;
         public static int WIDTH;
         public static int HEIGHT;
+        public static String PATH;
+        public static String PREFIX;
+        public static String FORMAT;
     }
 
     public static final class Origin {
@@ -47,6 +50,9 @@ public final class Config {
         Image.AMOUNT = Integer.parseInt(properties.getProperty("allrgb.image.amount"));
         Image.WIDTH = Integer.parseInt(properties.getProperty("allrgb.image.width"));
         Image.HEIGHT = Integer.parseInt(properties.getProperty("allrgb.image.height"));
+        Image.PATH = properties.getProperty("allrgb.image.path");
+        Image.PREFIX = properties.getProperty("allrgb.image.prefix");
+        Image.FORMAT = properties.getProperty("allrgb.image.format");
         Origin.X = Integer.parseInt(properties.getProperty("allrgb.start.x"));
         Origin.Y = Integer.parseInt(properties.getProperty("allrgb.start.y"));
     }
