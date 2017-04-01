@@ -50,13 +50,6 @@ public class Algorithm {
                 .collect(Collectors.toMap(i -> (i + 1) * colors.size() / Config.Image.AMOUNT - 1, i -> i));
     }
 
-    // gets the difference between two colors
-    static double colorDistance(Color c1, Color c2) {
-        return (c1.getRed() - c2.getRed()) * (c1.getRed() - c2.getRed())
-                + (c1.getGreen() - c2.getGreen()) * (c1.getGreen() - c2.getGreen())
-                + (c1.getBlue() - c2.getBlue()) * (c1.getBlue() - c2.getBlue());
-    }
-
     // calculates how well a color fits at the given coordinates
     private double inverseFitness(Coordinate coordinate, Color color) {
         // get the diffs for each neighbor separately
@@ -67,7 +60,7 @@ public class Algorithm {
             for (int x = coordinate.x - 1; x <= coordinate.x + 1; x++) {
                 if (x == -1 || x == Config.Image.WIDTH || canvas[y][x] == null)
                     continue;
-                inverseFitnesses.add(colorDistance(color, canvas[y][x]));
+                inverseFitnesses.add(Config.Color.DISTANCE.apply(color, canvas[y][x]));
             }
         }
 

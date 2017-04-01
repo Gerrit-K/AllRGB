@@ -3,13 +3,16 @@ package allrgb.core;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.util.Properties;
+import java.util.function.BiFunction;
 
 public final class Config {
     public static boolean AVERAGE;
 
     public static final class Color {
         public static int DEPTH;
+        public static BiFunction<javafx.scene.paint.Color, javafx.scene.paint.Color, Double> DISTANCE;
     }
 
     public static final class Image {
@@ -47,6 +50,7 @@ public final class Config {
 
         AVERAGE = Boolean.parseBoolean(properties.getProperty("allrgb.average"));
         Color.DEPTH = Integer.parseInt(properties.getProperty("allrgb.color.depth"));
+        Color.DISTANCE = getColorDistanceByName(properties.getProperty("allrgb.color.distance"));
         Image.AMOUNT = Integer.parseInt(properties.getProperty("allrgb.image.amount"));
         Image.WIDTH = Integer.parseInt(properties.getProperty("allrgb.image.width"));
         Image.HEIGHT = Integer.parseInt(properties.getProperty("allrgb.image.height"));
@@ -55,5 +59,19 @@ public final class Config {
         Image.FORMAT = properties.getProperty("allrgb.image.format");
         Origin.X = Integer.parseInt(properties.getProperty("allrgb.start.x"));
         Origin.Y = Integer.parseInt(properties.getProperty("allrgb.start.y"));
+    }
+
+    private static BiFunction<javafx.scene.paint.Color, javafx.scene.paint.Color, Double> getColorDistanceByName(String name) {
+        Field[] distanceFields = ColorDistances.class.getDeclaredFields();
+        for (Field distanceField : distanceFields) {
+            if (distanceField.getName().equalsIgnoreCase(name)) {
+                try {
+                    return (BiFunction<javafx.scene.paint.Color, javafx.scene.paint.Color, Double>)
+                            distanceField.get(null);
+                } catch (IllegalAccessException ignored) {
+                }
+            }
+        }
+        return null;
     }
 }
