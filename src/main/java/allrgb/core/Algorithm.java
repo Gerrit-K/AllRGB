@@ -57,29 +57,17 @@ public class Algorithm {
                 + (c1.getBlue() - c2.getBlue()) * (c1.getBlue() - c2.getBlue());
     }
 
-    // gets the neighbors (3..8) of the given coordinate
-    static List<Coordinate> getNeighbours(Coordinate coordinate) {
-        List<Coordinate> neighbours = new ArrayList<>();
+    // calculates how well a color fits at the given coordinates
+    private double inverseFitness(Coordinate coordinate, Color color) {
+        // get the diffs for each neighbor separately
+        List<Double> inverseFitnesses = new ArrayList<>(8);
         for (int y = coordinate.y - 1; y <= coordinate.y + 1; y++) {
             if (y == -1 || y == Config.Image.HEIGHT)
                 continue;
             for (int x = coordinate.x - 1; x <= coordinate.x + 1; x++) {
-                if (x == -1 || x == Config.Image.WIDTH)
+                if (x == -1 || x == Config.Image.WIDTH || canvas[y][x] == null)
                     continue;
-                neighbours.add(new Coordinate(x, y));
-            }
-        }
-        return neighbours;
-    }
-
-    // calculates how well a color fits at the given coordinates
-    static double inverseFitness(Color[][] pixels, Coordinate coordinate, Color color) {
-        // get the diffs for each neighbor separately
-        List<Double> inverseFitnesses = new ArrayList<>(8);
-        for (Coordinate neighbour : getNeighbours(coordinate)) {
-            Color pixel = pixels[neighbour.y][neighbour.x];
-            if (pixel != null) {
-                inverseFitnesses.add(colorDistance(color, pixel));
+                inverseFitnesses.add(colorDistance(color, canvas[y][x]));
             }
         }
 
@@ -104,8 +92,8 @@ public class Algorithm {
                 bestFit = availableCoordinates
                         .parallelStream()
                         .sorted(
-                                (c1, c2) -> (int) Math.signum(inverseFitness(canvas, c1, colors.get(finalI))
-                                        - inverseFitness(canvas, c2, colors.get(finalI))))
+                                (c1, c2) -> (int) Math.signum(inverseFitness(c1, colors.get(finalI))
+                                        - inverseFitness(c2, colors.get(finalI))))
                         .findFirst().orElse(null);
             }
             // put the pixel where it belongs
@@ -114,9 +102,13 @@ public class Algorithm {
 
             // adjust the available list
             availableCoordinates.remove(bestFit);
-            for (Coordinate neighbour : getNeighbours(bestFit)) {
-                if (canvas[neighbour.y][neighbour.x] == null) {
-                    availableCoordinates.add(neighbour);
+            for (int y = bestFit.y - 1; y <= bestFit.y + 1; y++) {
+                if (y == -1 || y == Config.Image.HEIGHT)
+                    continue;
+                for (int x = bestFit.x - 1; x <= bestFit.x + 1; x++) {
+                    if (x == -1 || x == Config.Image.WIDTH || canvas[y][x] != null)
+                        continue;
+                    availableCoordinates.add(new Coordinate(x, y));
                 }
             }
 
