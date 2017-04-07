@@ -24,6 +24,7 @@ public class Algorithm {
     private Set<Coordinate> availableCoordinates;
     private Map<Integer, Integer> imageCheckpoints;
     private Random random;
+    private final int neighbourhoodHalfWidth = Config.NEIGHBOURHOOD_WIDTH / 2;
 
     public Algorithm() {
         random = new Random(Config.SEED);
@@ -57,12 +58,15 @@ public class Algorithm {
     // calculates how well a color fits at the given coordinates
     private double inverseFitness(Coordinate coordinate, Color color) {
         // get the diffs for each neighbor separately
-        List<Double> inverseFitnesses = new ArrayList<>(8);
-        for (int y = coordinate.y - 1; y <= coordinate.y + 1; y++) {
-            if (y == -1 || y == Config.Image.HEIGHT)
+        List<Double> inverseFitnesses =
+                new ArrayList<>(Config.NEIGHBOURHOOD_WIDTH * Config.NEIGHBOURHOOD_WIDTH - 1);
+        final int maxY = coordinate.y + neighbourhoodHalfWidth;
+        final int maxX = coordinate.x + neighbourhoodHalfWidth;
+        for (int y = coordinate.y - neighbourhoodHalfWidth; y <= maxY; y++) {
+            if (y < 0 || y >= Config.Image.HEIGHT)
                 continue;
-            for (int x = coordinate.x - 1; x <= coordinate.x + 1; x++) {
-                if (x == -1 || x == Config.Image.WIDTH || canvas[y][x] == null)
+            for (int x = coordinate.x - neighbourhoodHalfWidth; x <= maxX; x++) {
+                if (x < 0 || x >= Config.Image.WIDTH || canvas[y][x] == null)
                     continue;
                 inverseFitnesses.add(Config.Color.DISTANCE.apply(color, canvas[y][x]));
             }

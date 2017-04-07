@@ -10,6 +10,7 @@ import java.util.function.BiFunction;
 public final class Config {
     public static boolean AVERAGE;
     public static long SEED;
+    public static int NEIGHBOURHOOD_WIDTH;
 
     public static final class Color {
         public static int DEPTH;
@@ -51,6 +52,7 @@ public final class Config {
 
         AVERAGE = Boolean.parseBoolean(properties.getProperty("allrgb.average"));
         SEED = Long.parseLong(properties.getProperty("allrgb.seed"));
+        NEIGHBOURHOOD_WIDTH = Integer.parseInt(properties.getProperty("allrgb.neighbourhood_width"));
         Color.DEPTH = Integer.parseInt(properties.getProperty("allrgb.color.depth"));
         Color.DISTANCE = getColorDistanceByName(properties.getProperty("allrgb.color.distance"));
         Image.AMOUNT = Integer.parseInt(properties.getProperty("allrgb.image.amount"));
