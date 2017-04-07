@@ -66,8 +66,10 @@ public final class Config {
         for (Field distanceField : distanceFields) {
             if (distanceField.getName().equalsIgnoreCase(name)) {
                 try {
-                    return (BiFunction<javafx.scene.paint.Color, javafx.scene.paint.Color, Double>)
-                            distanceField.get(null);
+                    @SuppressWarnings("unchecked")
+                    BiFunction<javafx.scene.paint.Color, javafx.scene.paint.Color, Double> distance =
+                            (BiFunction<javafx.scene.paint.Color, javafx.scene.paint.Color, Double>) distanceField.get(null);
+                    return distance;
                 } catch (IllegalAccessException ignored) {
                 }
             }
