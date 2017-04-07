@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -22,8 +23,11 @@ public class Algorithm {
     private Color[][] canvas;
     private Set<Coordinate> availableCoordinates;
     private Map<Integer, Integer> imageCheckpoints;
+    private Random random;
 
     public Algorithm() {
+        random = new Random(Config.SEED);
+
         // create every color once and randomize the order
         colors = new ArrayList<>();
         for (int r = 0; r < Config.Color.DEPTH; r++) {
@@ -36,7 +40,7 @@ public class Algorithm {
                 }
             }
         }
-        Collections.shuffle(colors);
+        Collections.shuffle(colors, random);
 
         // temporary place where we work (faster than all that many GetPixel calls)
         canvas = new Color[Config.Image.HEIGHT][Config.Image.WIDTH];
