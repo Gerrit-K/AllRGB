@@ -4,10 +4,14 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 import java.util.function.BiFunction;
 
 public final class Config {
+    public static boolean PRINT_CONFIG;
     public static boolean AVERAGE;
     public static long SEED;
     public static int NEIGHBOURHOOD_WIDTH;
@@ -33,13 +37,15 @@ public final class Config {
 
     public static void load(String file) {
         Properties properties = new Properties();
+        Properties defaultProperties = new Properties();
 
         // property precedence:
         // 1 (lowest): default properties
         try (InputStream inputStream = Config.class.getClassLoader().getResourceAsStream("default.properties")) {
-            properties.load(inputStream);
+            defaultProperties.load(inputStream);
         } catch (IOException ignored) {
         }
+        properties.putAll(defaultProperties);
 
         // 2: custom file properties
         try (InputStream inputStream = new FileInputStream(file)) {
@@ -50,6 +56,7 @@ public final class Config {
         // 3: system properties (provided as JVM arguments with -D)
         properties.putAll(System.getProperties());
 
+        PRINT_CONFIG = Boolean.parseBoolean(properties.getProperty("allrgb.print_config"));
         AVERAGE = Boolean.parseBoolean(properties.getProperty("allrgb.average"));
         SEED = Long.parseLong(properties.getProperty("allrgb.seed"));
         NEIGHBOURHOOD_WIDTH = Integer.parseInt(properties.getProperty("allrgb.neighbourhood_width"));
@@ -63,6 +70,15 @@ public final class Config {
         Image.FORMAT = properties.getProperty("allrgb.image.format");
         Origin.X = Integer.parseInt(properties.getProperty("allrgb.start.x"));
         Origin.Y = Integer.parseInt(properties.getProperty("allrgb.start.y"));
+
+        if (PRINT_CONFIG) {
+            System.out.println("Configuration:");
+            List<String> sortedPropertyNames = new ArrayList<>(defaultProperties.stringPropertyNames());
+            Collections.sort(sortedPropertyNames);
+            for (String propertyName : sortedPropertyNames) {
+                System.out.println(propertyName + "=" + properties.getProperty(propertyName));
+            }
+        }
     }
 
     private static BiFunction<javafx.scene.paint.Color, javafx.scene.paint.Color, Double> getColorDistanceByName(String name) {
