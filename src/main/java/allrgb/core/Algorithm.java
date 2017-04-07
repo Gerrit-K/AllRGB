@@ -73,10 +73,21 @@ public class Algorithm {
         }
 
         // average or minimum selection
-        if (Config.AVERAGE)
-            return inverseFitnesses.stream().mapToDouble(Double::doubleValue).average().orElse(1);
-        else
-            return inverseFitnesses.stream().mapToDouble(Double::doubleValue).min().orElse(1);
+        if (Config.AVERAGE) {
+            double sum = 0;
+            for (double d : inverseFitnesses) {
+                sum += d;
+            }
+            return sum / inverseFitnesses.size();
+        } else {
+            double min = Double.MAX_VALUE;
+            for (double d : inverseFitnesses) {
+                if (d < min) {
+                    min = d;
+                }
+            }
+            return min;
+        }
     }
 
     public void run() {
@@ -88,14 +99,16 @@ public class Algorithm {
                 bestFit = new Coordinate(Config.Origin.X, Config.Origin.Y);
             } else {
                 // find the best place from the list of available coordinates
-                // uses parallel processing, this is the most expensive step
-                int finalI = i;
-                bestFit = availableCoordinates
-                        .parallelStream()
-                        .sorted(
-                                (c1, c2) -> (int) Math.signum(inverseFitness(c1, colors.get(finalI))
-                                        - inverseFitness(c2, colors.get(finalI))))
-                        .findFirst().orElse(null);
+                // this is the most expensive step
+                bestFit = availableCoordinates.iterator().next();
+                double minInverseFitness = Double.MAX_VALUE;
+                for (Coordinate coordinate : availableCoordinates) {
+                    double inverseFitness = inverseFitness(coordinate, colors.get(i));
+                    if (inverseFitness < minInverseFitness) {
+                        minInverseFitness = inverseFitness;
+                        bestFit = coordinate;
+                    }
+                }
             }
             // put the pixel where it belongs
             assert canvas[bestFit.y][bestFit.x] == null;
