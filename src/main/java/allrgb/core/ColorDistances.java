@@ -13,6 +13,10 @@ public interface ColorDistances {
     BiFunction<Color, Color, Double> SQUARED_HUE_DIFFERENCE =
             (c1, c2) -> (c1.getHue() - c2.getHue()) * (c1.getHue() - c2.getHue());
 
+    BiFunction<Color, Color, Double> SQUARED_HUE_SINE_DIFFERENCE =
+            (c1, c2) -> ((Math.sin(c1.getHue() / 360 * Math.PI) - Math.sin(c2.getHue() / 360 * Math.PI))
+                    * (Math.sin(c1.getHue() / 360 * Math.PI) - Math.sin(c2.getHue() / 360 * Math.PI)));
+
     BiFunction<Color, Color, Double> SQUARED_BRIGHTNESS_DIFFERENCE =
             (c1, c2) -> (c1.getBrightness() - c2.getBrightness()) * (c1.getBrightness() - c2.getBrightness());
 }
